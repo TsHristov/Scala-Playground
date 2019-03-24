@@ -47,4 +47,59 @@ object List {
     case Cons(x,xs) => if (f(x)) dropWhile(xs,f) else l
   }
 
+
+  // 3.6
+  def init[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(_, Nil) => Nil
+    case Cons(h, t) => Cons(h, init(t))
+  }
+
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B =
+    as match {
+      case Nil => z
+      case Cons(x, xs) => f(x, foldRight(xs,z)(f))
+    }
+
+  // 3.9
+  def length[A](l: List[A]): Int = foldRight(l, 0)((_, acc) => acc + 1)
+
+  // 3.10
+  def foldLeft[A,B](as: List[A], z: B)(f: (B, A) => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
+  }
+
+  // 3.11 - sum, product and length in terms of foldLeft
+  def sum1(ints: List[Int]): Int = foldLeft(ints,0)(_ + _)
+
+  def product1(l: List[Double]): Double = foldLeft(l,1.0)(_ * _)
+
+  def length1[A](l: List[A]): Int = foldLeft(l,0)((acc,x) => acc + 1)
+
+  // 3.12
+  def reverse(l: List[Int]): List[Int] = {
+    def go(l: List[Int], acc: List[Int]): List[Int] = l match {
+      case Nil => acc
+      case Cons(x,xs) => go(xs, Cons(x, acc))
+    }
+    go(l, Nil)
+  }
+
+  // TODO: Fix it
+  // def reverse1(l: List[Int]): List[Int] = foldLeft(l,List[Nothing])((x, acc: List[Nothing]) => Cons(x,acc))
+
+  // 3.13 - foldLeft in terms of foldRight
+
+  // Implement foldLeft in terms of foldRight
+  def foldLeft1[A,B](as: List[A], z: B)(f: (B, A) => B): B = {
+    foldRight(as, z)((x, acc) => f(acc, x))
+  }
+
+  // Implement foldRight in terms of foldLeft
+  def foldRight1[A,B](as: List[A], z: B)(f: (B, A) => B): B = {
+    def swap[A,B,C](f: (A,B) => C): B => (A => C) = (b: B) => (a: A) => f(a, b)
+    foldLeft(as: List[A], z: B)((acc, x) => swap(f)(x)(acc))
+  }
 }
+
